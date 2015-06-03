@@ -7,7 +7,7 @@
 #define DEFAULT_ITERS 100000
 
 void parent_loop(long iters, int tx_fd, int rx_fd) {
-    int wait_status, i;
+    int i;
     struct timespec start, end;
 
     fprintf(stderr, "About to start!\n");
@@ -29,12 +29,12 @@ void parent_loop(long iters, int tx_fd, int rx_fd) {
 
     clock_gettime(CLOCK_MONOTONIC, &end);
 
-    fprintf(stderr, "Started at %d.%d\n", start.tv_sec, start.tv_nsec);
-    fprintf(stderr, "Ended at %d.%d\n", end.tv_sec, end.tv_nsec);
+    fprintf(stderr, "Started at %lld.%ld\n", (long long) start.tv_sec, start.tv_nsec);
+    fprintf(stderr, "Ended at %lld.%ld\n", (long long) end.tv_sec, end.tv_nsec);
 
-    long elapsed_nsec = (end.tv_sec - start.tv_sec) * 1000000000 + (end.tv_nsec - start.tv_nsec);
+    long long elapsed_nsec = (end.tv_sec - start.tv_sec) * 1000000000 + (end.tv_nsec - start.tv_nsec);
 
-    fprintf(stderr, "%ld iters in %ld ns\n %f ns/iter\n", iters, elapsed_nsec, (double) elapsed_nsec / iters);
+    fprintf(stderr, "%ld iters in %lld ns\n %f ns/iter\n", iters, elapsed_nsec, (double) elapsed_nsec / iters);
 
     exit(EXIT_SUCCESS);
 }
@@ -47,7 +47,7 @@ void child_loop(int tx_fd, int rx_fd) {
     }
 }
 
-void main(int argc, char **argv) {
+int main(int argc, char **argv) {
     long iters;
 
     if (argc > 1) {
@@ -61,7 +61,7 @@ void main(int argc, char **argv) {
         iters = DEFAULT_ITERS;
     }
 
-    fprintf(stderr, "iters: %d\n", iters);
+    fprintf(stderr, "iters: %ld\n", iters);
 
     int tx[2], rx[2];  // relative to parent
     if (pipe(tx)) {
@@ -86,4 +86,6 @@ void main(int argc, char **argv) {
 
         child_loop(rx[1], tx[0]);
     }
+
+    return 0;
 }
