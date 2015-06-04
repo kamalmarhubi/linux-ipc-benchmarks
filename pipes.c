@@ -5,12 +5,26 @@
 #include <unistd.h>
 
 #define DEFAULT_ITERS 100000
+#define WARMUP_ITERS 10000
 
 void parent_loop(long iters, int tx_fd, int rx_fd) {
     int i;
     struct timespec start, end;
 
     fprintf(stderr, "About to start!\n");
+
+    for (i = 0; i < WARMUP_ITERS; ++i) {
+        char resp;
+        if (write(tx_fd, "0", 1) == -1) {
+            perror("could not write");
+            break;
+        };
+
+        if (read(rx_fd, &resp, 1) == -1) {
+            perror("could not read");
+            break;
+        }
+    }
 
     clock_gettime(CLOCK_MONOTONIC, &start);
 
