@@ -4,11 +4,11 @@
 PROGS := pipes
 SRCS := $(addsuffix .c, $(PROGS))
 
-CC      := cc
-CFLAGS  := -Wall -Wextra -Werror
+CC := cc
+CFLAGS := -Wall -Wextra -Werror
 LDFLAGS :=
 
-OBJS   = $(SRCS:.c=.o)
+OBJS = $(SRCS:.c=.o)
 
 .PHONY: all
 all: $(PROGS)
