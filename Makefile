@@ -1,7 +1,7 @@
 # Public domain Makefile template derived from
 #   http://jingram.sdf.org/2014/11/09/a-makefile-template-for-simple-c-projects.html
 
-PROGS := pipes
+PROGS := pipes eventfd
 SRCS := $(addsuffix .c, $(PROGS))
 
 CC := cc
