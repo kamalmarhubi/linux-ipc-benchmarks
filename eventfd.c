@@ -47,8 +47,6 @@ void parent_loop(int warmup_iters, int iters, int tx_fd, int rx_fd) {
     int i;
     struct timespec start, end;
 
-    fprintf(stderr, "About to start!\n");
-
     for (i = 0; i < warmup_iters; ++i) {
         char resp[8];
         if (write(tx_fd, "\0\0\0\0\0\0\0\1", 8) == -1) {
@@ -78,9 +76,6 @@ void parent_loop(int warmup_iters, int iters, int tx_fd, int rx_fd) {
     }
 
     clock_gettime(CLOCK_MONOTONIC, &end);
-
-    fprintf(stderr, "Started at %lld.%ld\n", (long long) start.tv_sec, start.tv_nsec);
-    fprintf(stderr, "Ended at %lld.%ld\n", (long long) end.tv_sec, end.tv_nsec);
 
     long long elapsed_nsec = (end.tv_sec - start.tv_sec) * 1000000000 + (end.tv_nsec - start.tv_nsec);
 
