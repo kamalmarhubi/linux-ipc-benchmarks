@@ -4,7 +4,7 @@ This is a collection of benchmarks of Linux interprocess communication mechanism
 
 At present, it benchmarks round-trip latency for pipes and eventfd.
 
-To try the benchmarks, simply run `make all`. The `pipes` and `eventfd` binaries
+To build the benchmarks, simply run `make`. The `pipes` and `eventfd` binaries
 both take the following flags:
 
 ```
