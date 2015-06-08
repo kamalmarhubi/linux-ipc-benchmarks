@@ -9,10 +9,13 @@
 #define xstr(s) str(s)
 #define str(s) #s
 
+#define DEFAULT_MEASUREMENTS 1
 #define DEFAULT_ITERS 100000
 #define DEFAULT_WARMUP_ITERS 1000
 
 static struct argp_option options[] = {
+    {"measurements", 'm', "COUNT", 0,
+     "number of measurements to take; default: " xstr(DEFAULT_MEASUREMENTS), 0},
     {"iters", 'i', "COUNT", 0,
      "number of iterations to measure; default: " xstr(DEFAULT_ITERS), 0},
     {0, 'n', "COUNT", OPTION_ALIAS, 0, 0},
@@ -24,6 +27,7 @@ static struct argp_option options[] = {
 
 typedef struct {
   int iters;
+  int measurements;
   int warmup_iters;
 } args;
 
@@ -31,6 +35,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
   args *args = state->input;
 
   switch (key) {
+    case 'm':
+      args->measurements = atoi(arg);
+      break;
     case 'i':
     case 'n':
       args->iters = atoi(arg);
@@ -44,6 +51,11 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
   return 0;
 }
 
+long long elapsed_nsec(struct timespec start, struct timespec end) {
+  return (end.tv_sec - start.tv_sec) * 1000000000 +
+         (end.tv_nsec - start.tv_nsec);
+}
+
 static struct argp argp = {options, parse_opt, 0, 0, 0, 0, 0};
 
 int main(int argc, char **argv) {
@@ -51,6 +63,7 @@ int main(int argc, char **argv) {
   state *state = new_state();
 
   args.iters = DEFAULT_ITERS;
+  args.measurements = DEFAULT_MEASUREMENTS;
   args.warmup_iters = DEFAULT_WARMUP_ITERS;
 
   argp_parse(&argp, argc, argv, 0, 0, &args);
@@ -65,19 +78,25 @@ int main(int argc, char **argv) {
     parent_warmup(args.warmup_iters, state);
 
     struct timespec start, end;
-    clock_gettime(CLOCK_MONOTONIC, &start);
 
-    parent_loop(args.iters, state);
+    for (int i = 0; i < args.measurements; ++i) {
+      clock_gettime(CLOCK_MONOTONIC, &start);
+      parent_loop(args.iters, state);
+      clock_gettime(CLOCK_MONOTONIC, &end);
 
-    clock_gettime(CLOCK_MONOTONIC, &end);
+      if (args.measurements > 1) {
+        printf("%d\t%lld\n", args.iters, elapsed_nsec(start, end));
+      }
+    }
+
+    if (args.measurements == 1) {
+      long long elapsed = elapsed_nsec(start, end);
+      fprintf(stderr, "%d iters in %lld ns\n %f ns/iter\n", args.iters, elapsed,
+              (double)elapsed / args.iters);
+    }
 
     parent_cleanup(state);
 
-    long long elapsed_nsec = (end.tv_sec - start.tv_sec) * 1000000000 +
-                             (end.tv_nsec - start.tv_nsec);
-
-    fprintf(stderr, "%d iters in %lld ns\n %f ns/iter\n", args.iters,
-            elapsed_nsec, (double)elapsed_nsec / args.iters);
   } else {
     child_post_fork_setup(state);
     child_warmup(args.warmup_iters, state);

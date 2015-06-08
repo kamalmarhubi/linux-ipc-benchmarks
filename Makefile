@@ -7,7 +7,7 @@ PROGS := pipes eventfd
 SRCS := $(addsuffix .c, $(PROGS)) main.c
 
 CC := cc
-CFLAGS := -Wall -Wextra -Werror -MMD
+CFLAGS := -std=gnu11 -Wall -Wextra -Werror -MMD
 LDFLAGS :=
 
 $(PROGS): $(addsuffix .o, $@) main.o
