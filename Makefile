@@ -4,13 +4,13 @@
 .DEFAULT_GOAL = all
 
 PROGS := pipes eventfd
-SRCS := $(addsuffix .c, $(PROGS)) bench_main.c
+SRCS := $(addsuffix .c, $(PROGS)) main.c
 
 CC := cc
 CFLAGS := -Wall -Wextra -Werror -MMD
 LDFLAGS :=
 
-$(PROGS): $(addsuffix .o, $@) bench_main.o
+$(PROGS): $(addsuffix .o, $@) main.o
 
 OBJS = $(SRCS:.c=.o)
 DEPS = $(SRCS:.c=.d)
