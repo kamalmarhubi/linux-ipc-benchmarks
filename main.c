@@ -1,4 +1,5 @@
 #include <argp.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -72,7 +73,8 @@ int main(int argc, char **argv) {
 
   pid_t child = fork();
   if (child == -1) {
-    // uh-oh
+    perror("could not fork");
+    exit(EXIT_FAILURE);
   } else if (child) {
     parent_post_fork_setup(state);
     parent_warmup(args.warmup_iters, state);
@@ -96,6 +98,7 @@ int main(int argc, char **argv) {
     }
 
     parent_cleanup(state);
+    kill(child, SIGTERM);
 
   } else {
     child_post_fork_setup(state);
