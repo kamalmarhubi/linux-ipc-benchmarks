@@ -14,8 +14,8 @@
 #define DEFAULT_WARMUP_ITERS 1000
 
 static struct argp_option options[] = {
-    {"measurements", 'm', "COUNT", 0,
-     "number of measurements to take; default: " xstr(DEFAULT_MEASUREMENTS), 0},
+    {"repeat", 'r', "COUNT", 0,
+     "number of times to repeat measurement; default: " xstr(DEFAULT_MEASUREMENTS), 0},
     {"iters", 'i', "COUNT", 0,
      "number of iterations to measure; default: " xstr(DEFAULT_ITERS), 0},
     {0, 'n', "COUNT", OPTION_ALIAS, 0, 0},
@@ -27,7 +27,7 @@ static struct argp_option options[] = {
 
 typedef struct {
   int iters;
-  int measurements;
+  int repeats;
   int warmup_iters;
 } args;
 
@@ -35,8 +35,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
   args *args = state->input;
 
   switch (key) {
-    case 'm':
-      args->measurements = atoi(arg);
+    case 'r':
+      args->repeats = atoi(arg);
       break;
     case 'i':
     case 'n':
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
   state *state = new_state();
 
   args.iters = DEFAULT_ITERS;
-  args.measurements = DEFAULT_MEASUREMENTS;
+  args.repeats = DEFAULT_MEASUREMENTS;
   args.warmup_iters = DEFAULT_WARMUP_ITERS;
 
   argp_parse(&argp, argc, argv, 0, 0, &args);
@@ -79,17 +79,17 @@ int main(int argc, char **argv) {
 
     struct timespec start, end;
 
-    for (int i = 0; i < args.measurements; ++i) {
+    for (int i = 0; i < args.repeats; ++i) {
       clock_gettime(CLOCK_MONOTONIC, &start);
       parent_loop(args.iters, state);
       clock_gettime(CLOCK_MONOTONIC, &end);
 
-      if (args.measurements > 1) {
+      if (args.repeats > 1) {
         printf("%d\t%lld\n", args.iters, elapsed_nsec(start, end));
       }
     }
 
-    if (args.measurements == 1) {
+    if (args.repeats == 1) {
       long long elapsed = elapsed_nsec(start, end);
       fprintf(stderr, "%d iters in %lld ns\n %f ns/iter\n", args.iters, elapsed,
               (double)elapsed / args.iters);
