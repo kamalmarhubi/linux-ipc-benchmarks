@@ -3,7 +3,7 @@
 
 .DEFAULT_GOAL = all
 
-PROGS := pipes eventfd af_unix
+PROGS := pipes eventfd af_unix af_inet_loopback
 SRCS := $(addsuffix .c, $(PROGS)) main.c
 
 CC := cc
