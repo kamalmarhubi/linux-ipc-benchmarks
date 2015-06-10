@@ -27,7 +27,9 @@ static struct argp_option options[] = {
      "CPU to run the parent on; default is to let the scheduler do as it will",
      0},
     {"repeat", 'r', "COUNT", 0,
-     "number of times to repeat measurement; default: " xstr(DEFAULT_MEASUREMENTS), 0},
+     "number of times to repeat measurement; default: " xstr(
+         DEFAULT_MEASUREMENTS),
+     0},
     {"iters", 'i', "COUNT", 0,
      "number of iterations to measure; default: " xstr(DEFAULT_ITERS), 0},
     {0, 'n', "COUNT", OPTION_ALIAS, 0, 0},
