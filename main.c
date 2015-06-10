@@ -112,6 +112,7 @@ int main(int argc, char **argv) {
     perror("could not fork");
     exit(EXIT_FAILURE);
   } else if (child) {
+    long long *data = calloc(sizeof(long long), args.repeats);
     sched_setaffinity_or_die(args.parent_cpu);
     parent_post_fork_setup(state);
     parent_warmup(args.warmup_iters, state);
@@ -122,16 +123,17 @@ int main(int argc, char **argv) {
       clock_gettime(CLOCK_MONOTONIC, &start);
       parent_loop(args.iters, state);
       clock_gettime(CLOCK_MONOTONIC, &end);
-
-      if (args.repeats > 1) {
-        printf("%d\t%lld\n", args.iters, elapsed_nsec(start, end));
-      }
+      data[i] = elapsed_nsec(start, end);
     }
 
     if (args.repeats == 1) {
       long long elapsed = elapsed_nsec(start, end);
-      fprintf(stderr, "%d iters in %lld ns\n %f ns/iter\n", args.iters, elapsed,
+      fprintf(stderr, "%d iters in %lld ns\n %f ns/iter\n", args.iters, data[0],
               (double)elapsed / args.iters);
+    } else {
+      for (int i = 0; i < args.repeats; ++i) {
+        printf("%d\t%lld\n", args.iters, data[i]);
+      }
     }
 
     parent_cleanup(state);
